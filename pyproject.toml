@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clipy-manager"
+version = "0.1.0"
+authors = [
+  { name="Andriy", email="project-git@techie.com" },
+]
+description = "A lightweight clipboard manager for Wayland and X11"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Utilities",
+]
+keywords = ["clipboard", "manager", "linux", "wayland", "x11", "rofi", "fzf", "telescope"]
+
+dependencies = []
+
+[project.urls]
+"Homepage" = "https://github.com/andriy-git/clipy"
+"Bug Tracker" = "https://github.com/andriy-git/clipy/issues"
+
+[project.scripts]
+clipy = "clipy.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["clipy*"]
+
+[tool.setuptools.package-data]
+"clipy" = ["**/*.json", "**/*.css", "**/*.txt"]
