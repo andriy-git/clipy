@@ -6,7 +6,7 @@ from .utils import get_config_dir
 CONFIG_PATH = os.path.join(get_config_dir(), "config.json")
 
 DEFAULT_CONFIG = {
-    "max_entries": 1000,
+    "max_entries": 100,
     "blacklist": []
 }
 
