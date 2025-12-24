@@ -60,13 +60,14 @@ systemctl --user enable --now clipy-daemon.service
 ### 2. Status & Management
 ```bash
 clipy status
-clipy clear
+clipy clear        # Clear all history
+clipy clear '^.{1,3}$'  # Clear entries between 1-3 characters
 ```
 
 ### 3. Integrated Pickers
 Clipy comes with built-in support for popular search tools. You can run them directly:
 
-- **fzf**: `clipy fzf` (Supports live search, delete with `Ctrl-D`, and outputs selection to stdout)
+- **fzf**: `clipy fzf` (Supports live search, delete with `Ctrl+d`, and outputs selection to stdout)
 - **Rofi**: `clipy rofi` (Supports select and delete with `Ctrl+d`, restores to clipboard)
 - **dmenu**: `clipy dmenu` (Restores to clipboard)
 
