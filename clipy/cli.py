@@ -254,8 +254,15 @@ def cmd_status(args):
 def cmd_clear(args):
     """Clears history."""
     init_db()
-    clear_history()
-    print("History cleared.", file=sys.stderr)
+    try:
+        clear_history(pattern=args.regex)
+        if args.regex:
+            print(f"History cleared for pattern: {args.regex}", file=sys.stderr)
+        else:
+            print("History cleared.", file=sys.stderr)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def main():
     parser = argparse.ArgumentParser(description="Clipy - Clipboard Manager")
@@ -282,7 +289,8 @@ def main():
     p_recall.set_defaults(func=cmd_recall)
     
     # Clear
-    p_clear = subparsers.add_parser("clear", help="Clear history")
+    p_clear = subparsers.add_parser("clear", help="Clear all history or specific entries with regex")
+    p_clear.add_argument("regex", nargs='?', help="Optional regex pattern to clear specific entries")
     p_clear.set_defaults(func=cmd_clear)
     
     # Status
