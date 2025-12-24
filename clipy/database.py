@@ -2,6 +2,7 @@
 import sqlite3
 import os
 import time
+import re
 from typing import List, Optional, Tuple
 from .utils import get_data_dir
 
@@ -142,23 +143,53 @@ def delete_clip_by_value(content_value: str):
     if row:
         delete_clip_by_id(row[0])
 
-def clear_history():
-    """Clear all clips and reset autoincrement counter."""
+def clear_history(pattern: Optional[str] = None):
+    """
+    Clear clips from history.
+    If pattern is provided, only clips matching the regex pattern (matching against content_value) are cleared.
+    Otherwise, all clips are cleared and the autoincrement counter is reset.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    
-    # Delete all image files first
-    c.execute("SELECT content_value FROM clips WHERE content_type = 'image'")
-    image_paths = c.fetchall()
-    for (file_path,) in image_paths:
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except OSError:
-                pass
 
-    c.execute("DELETE FROM clips")
-    # Reset autoincrement counter
-    c.execute("DELETE FROM sqlite_sequence WHERE name='clips'")
+    if pattern:
+        # Fetch all clips to filter by regex
+        # We only filter if content_type is 'text' or if it's an image path matching the pattern
+        c.execute("SELECT id, content_value, content_type FROM clips")
+        all_clips = c.fetchall()
+
+        try:
+            regex = re.compile(pattern)
+        except re.error as e:
+            conn.close()
+            raise ValueError(f"Invalid regex pattern: {e}")
+
+        ids_to_delete = []
+        for clip_id, content_value, content_type in all_clips:
+            if regex.search(content_value):
+                ids_to_delete.append(clip_id)
+
+        if ids_to_delete:
+            # Delete files first
+            _delete_files_for_ids(c, ids_to_delete)
+
+            # Delete from DB
+            placeholders = ','.join(['?'] * len(ids_to_delete))
+            c.execute(f"DELETE FROM clips WHERE id IN ({placeholders})", ids_to_delete)
+    else:
+        # Delete all image files first
+        c.execute("SELECT content_value FROM clips WHERE content_type = 'image'")
+        image_paths = c.fetchall()
+        for (file_path,) in image_paths:
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except OSError:
+                    pass
+
+        c.execute("DELETE FROM clips")
+        # Reset autoincrement counter
+        c.execute("DELETE FROM sqlite_sequence WHERE name='clips'")
+
     conn.commit()
     conn.close()
